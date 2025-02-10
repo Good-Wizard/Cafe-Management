@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Cafe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Admin Dashboard</h2>
+    
+    <div class="row">
+        <!-- Quick Stats -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h3 class="card-text">{{ stats.total_orders }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Revenue</h5>
+                    <h3 class="card-text">${{ "%.2f"|format(stats.today_revenue) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Products</h5>
+                    <h3 class="card-text">{{ stats.total_products }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h3 class="card-text">{{ stats.total_users }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Management Sections -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Product Management</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin_products') }}" class="list-group-item list-group-item-action">
+                            View All Products
+                        </a>
+                        <a href="{{ url_for('admin_add_product') }}" class="list-group-item list-group-item-action">
+                            Add New Product
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order Management</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin_orders') }}" class="list-group-item list-group-item-action">
+                            View All Orders
+                        </a>
+                        <a href="{{ url_for('admin_pending_orders') }}" class="list-group-item list-group-item-action">
+                            Pending Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">User Management</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                            View All Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Reports</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin_sales_report') }}" class="list-group-item list-group-item-action">
+                            Sales Report
+                        </a>
+                        <a href="{{ url_for('admin_revenue_report') }}" class="list-group-item list-group-item-action">
+                            Revenue Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

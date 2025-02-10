@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Cafe{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Shopping Cart</h3>
+                {% if cart_items %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr data-item-id="{{ item.id }}">
+                                    <td>{{ item.product.name }}</td>
+                                    <td>${{ "%.2f"|format(item.product.price) }}</td>
+                                    <td>
+                                        <input type="number" class="form-control quantity-input" 
+                                               value="{{ item.quantity }}" min="1" style="width: 80px">
+                                    </td>
+                                    <td>${{ "%.2f"|format(item.product.price * item.quantity) }}</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm remove-item">Remove</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <button class="btn btn-outline-danger" id="clear-cart">Clear Cart</button>
+                        <h4>Total: ${{ "%.2f"|format(total) }}</h4>
+                    </div>
+                    <div class="text-end mt-3">
+                        <a href="{{ url_for('checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
+                    </div>
+                {% else %}
+                    <p class="text-center">Your cart is empty.</p>
+                    <div class="text-center">
+                        <a href="{{ url_for('home') }}" class="btn btn-primary">Continue Shopping</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Update quantity
+document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('change', async (e) => {
+        const itemId = e.target.closest('tr').dataset.itemId;
+        const quantity = parseInt(e.target.value);
+        
+        try {
+            const response = await fetch('/cart/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ item_id: itemId, quantity: quantity })
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.json();
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+        }
+    });
+});
+
+// Remove item
+document.querySelectorAll('.remove-item').forEach(button => {
+    button.addEventListener('click', async (e) => {
+        const itemId = e.target.closest('tr').dataset.itemId;
+        
+        try {
+            const response = await fetch('/cart/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ item_id: itemId, quantity: 0 })
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.json();
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+        }
+    });
+});
+
+// Clear cart
+document.getElementById('clear-cart')?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to clear your cart?')) return;
+    
+    try {
+        const response = await fetch('/cart/clear', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Cafe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">User Management</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Total Orders</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                            <td>{{ user.phone_number }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if user.is_admin else 'secondary' }}">
+                                    {{ 'Admin' if user.is_admin else 'User' }}
+                                </span>
+                            </td>
+                            <td>{{ user.orders|length }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info view-orders" data-user-id="{{ user.id }}">
+                                    View Orders
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Orders Modal -->
+<div class="modal fade" id="userOrdersModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Orders</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="userOrdersContent">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.view-orders').forEach(button => {
+    button.addEventListener('click', async (e) => {
+        const userId = e.target.dataset.userId;
+        const modal = new bootstrap.Modal(document.getElementById('userOrdersModal'));
+        
+        try {
+            const response = await fetch(`/admin/users/${userId}/orders`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('userOrdersContent').innerHTML = data.html;
+                modal.show();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+        }
+    });
+});
+</script>
+{% endblock %} 

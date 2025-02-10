@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Cafe{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Register</h3>
+                
+                <div id="phone-step">
+                    <form id="phone-form">
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                            <div class="form-text">Enter your phone number to receive a verification code.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Get Verification Code</button>
+                    </form>
+                </div>
+
+                <div id="verification-step" style="display: none;">
+                    <form id="verification-form">
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Verification Code</label>
+                            <input type="text" class="form-control" id="code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Complete Registration</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('phone-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById('phone').value;
+    
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `phone=${encodeURIComponent(phone)}`
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('phone-step').style.display = 'none';
+            document.getElementById('verification-step').style.display = 'block';
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+    }
+});
+
+document.getElementById('verification-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('code', document.getElementById('code').value);
+    formData.append('first_name', document.getElementById('first_name').value);
+    formData.append('last_name', document.getElementById('last_name').value);
+    formData.append('password', document.getElementById('password').value);
+    
+    try {
+        const response = await fetch('/verify', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Registration successful!');
+            window.location.href = '/login';
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+    }
+});
+</script>
+{% endblock %} 

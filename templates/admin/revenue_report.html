@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Revenue Report - Cafe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Revenue Report</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Revenue (Last 12 Months)</h5>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Revenue by Category</h5>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Revenue Summary</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Today's Revenue</h6>
+                            <h3>${{ "%.2f"|format(today_revenue) }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">This Week</h6>
+                            <h3>${{ "%.2f"|format(week_revenue) }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">This Month</h6>
+                            <h3>${{ "%.2f"|format(month_revenue) }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">This Year</h6>
+                            <h3>${{ "%.2f"|format(year_revenue) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Monthly revenue chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ months|tojson }},
+        datasets: [{
+            label: 'Monthly Revenue',
+            data: {{ monthly_revenue|tojson }},
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Category revenue chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(categoryCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ categories|tojson }},
+        datasets: [{
+            data: {{ category_revenue|tojson }},
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)'
+            ],
+            borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+</script>
+{% endblock %} 

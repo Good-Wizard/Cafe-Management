@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Cafe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">My Dashboard</h2>
+    
+    <!-- Active Orders Section -->
+    {% if active_orders %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Active Orders</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in active_orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for item in order.items %}
+                                    <li>{{ item.quantity }}x {{ item.product.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>${{ "%.2f"|format(order.total_price) }}</td>
+                            <td>
+                                <span class="badge bg-{{ {
+                                    'pending': 'warning',
+                                    'preparing': 'info',
+                                    'ready': 'success'
+                                    }[order.status] }}">
+                                    {{ order.status.title() }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Change Password Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Change Password</h3>
+            <form id="password-form">
+                <div class="mb-3">
+                    <label for="current-password" class="form-label">Current Password</label>
+                    <input type="password" class="form-control" id="current-password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="new-password" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="new-password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm-password" class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirm-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order History Section -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Order History</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for item in order.items %}
+                                    <li>{{ item.quantity }}x {{ item.product.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>${{ "%.2f"|format(order.total_price) }}</td>
+                            <td>
+                                <span class="badge bg-{{ {
+                                    'pending': 'warning',
+                                    'preparing': 'info',
+                                    'ready': 'success',
+                                    'completed': 'secondary',
+                                    'cancelled': 'danger'
+                                    }[order.status] }}">
+                                    {{ order.status.title() }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('password-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('current_password', document.getElementById('current-password').value);
+    formData.append('new_password', document.getElementById('new-password').value);
+    formData.append('confirm_password', document.getElementById('confirm-password').value);
+    
+    try {
+        const response = await fetch('/dashboard/change-password', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Password updated successfully!');
+            document.getElementById('password-form').reset();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+    }
+});
+</script>
+{% endblock %} 

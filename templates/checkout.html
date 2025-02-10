@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Cafe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if error %}
+            <div class="alert alert-danger mb-4">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Order Summary</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>${{ "%.2f"|format(item.product.price) }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>${{ "%.2f"|format(item.product.price * item.quantity) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>${{ "%.2f"|format(total) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Payment Information</h3>
+                    <form id="payment-form" method="POST">
+                        <div class="mb-3">
+                            <label for="card-number" class="form-label">Card Number</label>
+                            <input type="text" class="form-control" id="card-number" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="expiry" class="form-label">Expiry Date</label>
+                                <input type="text" class="form-control" id="expiry" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name on Card</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Complete Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('payment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Here you would normally handle payment processing
+    // For this demo, we'll just submit the form
+    e.target.submit();
+});
+</script>
+{% endblock %} 
